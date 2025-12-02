@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  pki-2fa:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: pki_2fa_service
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      # persistent seed storage
+      - seed-data:/data
+      # cron logs
+      - cron-output:/cron
+      # keys (read-only)
+      - ./student_private.pem:/app/student_private.pem:ro
+      - ./student_public.pem:/app/student_public.pem:ro
+      - ./instructor_public.pem:/app/instructor_public.pem:ro
+      # scripts folder so cron can access log_2fa_cron.py
+      - ./scripts:/app/scripts:ro
+
+    environment:
+      TZ: UTC
+
+    restart: unless-stopped
+
+volumes:
+  seed-data:
+  cron-output:
